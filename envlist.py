@@ -39,7 +39,6 @@ else:
 lock = FileLock(lock_path, timeout=time_out_secs)
 
 with lock:
-    clist = []
     if pmode == RESET_MODE:
         # create a list (named clist) of nevns environments with the 
         # prefix envprefix
