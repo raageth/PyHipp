@@ -6,26 +6,17 @@
 #SBATCH --ntasks=1   # number of processor cores (i.e. tasks)
 #SBATCH --nodes=1   # number of nodes
 #SBATCH --cpus-per-task=1
-#SBATCH -J "rplhps"   # job name
+#SBATCH -J "fsall"   # job name
 ## /SBATCH -p general # partition (queue)
 #SBATCH -o %x-slurm.%N.%j.out # STDOUT
 #SBATCH -e %x-slurm.%N.%j.err # STDERR
 
-/data/miniconda3/bin/conda init
-source ~/.bashrc
-envarg=`/data/src/PyHipp/envlist.py`
-conda activate $envarg
-
 # LOAD MODULES, INSERT CODE, AND RUN YOUR PROGRAMS HERE
 python -u -c "import PyHipp as pyh; \
-import time; \
-pyh.RPLHighPass(saveLevel=1); \
-from PyHipp import mountain_batch; \
-mountain_batch.mountain_batch(); \
-from PyHipp import export_mountain_cells; \
-export_mountain_cells.export_mountain_cells(); \
-print(time.localtime());";
+import DataProcessingTools as DPT; \
+lfall = DPT.objects.processDirs(dirs=None, exclude=['*eye*', '*mountains*'], objtype=pyh.FreqSpectrum, saveLevel=1); \
+lfall.save(); \
+hfall = DPT.objects.processDirs(dirs=None, exclude=['*eye*', '*mountains*'], objtype=pyh.FreqSpectrum, loadHighPass=True, pointsPerWindow=3000, saveLevel=1); \
+hfall.save();"
 
-conda deactivate
-/data/src/PyHipp/envlist.py $envarg
-
+bash /data/src/PyHipp/awsnotify.sh
